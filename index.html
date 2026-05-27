@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Improvement HQ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --surface: #1a1a1a;
+            --primary: #ffffff;
+            --secondary: #a0a0a0;
+            --accent: #4a90e2;
+            --danger: #e24a4a;
+            --success: #4ae28a;
+            --border: #333333;
+            --radius: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { background-color: var(--bg); color: var(--primary); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar Nav */
+        .sidebar { width: 250px; background-color: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; display: flex; flex-direction: column; overflow-y: auto; }
+        .sidebar h2 { padding: 0 20px 20px; font-size: 1.2rem; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+        .nav-item { padding: 12px 20px; cursor: pointer; color: var(--secondary); transition: 0.2s; font-size: 0.95rem; }
+        .nav-item:hover, .nav-item.active { color: var(--primary); background-color: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .module { display: none; max-width: 900px; margin: 0 auto; }
+        .module.active { display: block; }
+        
+        h1 { margin-bottom: 24px; font-weight: 500; }
+        h3 { margin-bottom: 16px; font-weight: 500; }
+
+        /* Cards & UI Elements */
+        .card { background-color: var(--surface); padding: 24px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 24px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        
+        input, select, textarea, button { background: var(--bg); color: var(--primary); border: 1px solid var(--border); padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; width: 100%; outline: none; }
+        input:focus, textarea:focus { border-color: var(--accent); }
+        button { background: var(--primary); color: var(--bg); font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
+        button.outline { background: transparent; color: var(--primary); border: 1px solid var(--border); }
+        button.outline:hover { border-color: var(--primary); }
+
+        .flex-row { display: flex; gap: 12px; align-items: center; }
+        
+        /* Specific Module Styles */
+        .water-droplets { display: flex; gap: 10px; font-size: 2rem; cursor: pointer; margin: 20px 0; }
+        .droplet { filter: grayscale(100%); opacity: 0.3; transition: 0.3s; }
+        .droplet.active { filter: grayscale(0%); opacity: 1; text-shadow: 0 0 10px rgba(74, 144, 226, 0.5); }
+        
+        .timer-display { font-size: 5rem; font-weight: 200; text-align: center; margin: 30px 0; font-variant-numeric: tabular-nums; }
+        
+        .ai-message { border-left: 4px solid var(--accent); background: rgba(74,144,226,0.1); padding: 16px; border-radius: 0 var(--radius) var(--radius) 0; margin-bottom: 24px; font-style: italic; }
+
+        .list-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid var(--border); }
+        .list-item:last-child { border-bottom: none; }
+        
+        .checkbox-label { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px 0; }
+        .checkbox-label input { width: auto; margin: 0; transform: scale(1.2); cursor: pointer; }
+
+        .positive { color: var(--success); }
+        .negative { color: var(--danger); }
+        
+        canvas { max-height: 300px; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>HQ</h2>
+        <div class="nav-item active" onclick="nav('overview')">Overview</div>
+        <div class="nav-item" onclick="nav('workout')">Workout</div>
+        <div class="nav-item" onclick="nav('calories')">Calories</div>
+        <div class="nav-item" onclick="nav('trading')">Trading Journal</div>
+        <div class="nav-item" onclick="nav('habits')">Habits</div>
+        <div class="nav-item" onclick="nav('sleep')">Sleep & Recovery</div>
+        <div class="nav-item" onclick="nav('journal')">Journal</div>
+        <div class="nav-item" onclick="nav('weight')">Body Weight</div>
+        <div class="nav-item" onclick="nav('water')">Water Intake</div>
+        <div class="nav-item" onclick="nav('networth')">Net Worth</div>
+        <div class="nav-item" onclick="nav('supplements')">Supplements</div>
+        <div class="nav-item" onclick="nav('pomodoro')">Focus Timer</div>
+    </div>
+
+    <div class="main-content">
+        <div id="overview" class="module active">
+            <h1>HQ Overview</h1>
+            <div class="ai-message" id="ai-focus">Loading your AI focus message...</div>
+            <div class="grid-3">
+                <div class="card">
+                    <h3>Water</h3>
+                    <p id="ov-water">0 / 8 glasses</p>
+                </div>
+                <div class="card">
+                    <h3>Net Worth</h3>
+                    <p id="ov-nw">$0.00</p>
+                </div>
+                <div class="card">
+                    <h3>Today's Habits</h3>
+                    <p id="ov-habits">0 / 6 complete</p>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Weekly Weight Trend</h3>
+                <canvas id="overviewChart"></canvas>
+            </div>
+        </div>
+
+        <div id="workout" class="module">
+            <h1>Workout Log</h1>
+            <div class="card">
+                <div class="flex-row">
+                    <select id="wo-type"><option>Push</option><option>Pull</option><option>Legs</option><option>Cardio</option></select>
+                    <input type="text" id="wo-exercise" placeholder="Exercise name">
+                    <input type="number" id="wo-weight" placeholder="Weight (kg/lbs)">
+                    <input type="number" id="wo-reps" placeholder="Reps">
+                    <button onclick="addWorkout()">Log Set</button>
+                </div>
+            </div>
+            <div class="card" id="wo-list"></div>
+        </div>
+
+        <div id="calories" class="module">
+            <h1>Calories & Macros</h1>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Log Food</h3>
+                    <input type="text" id="cal-food" placeholder="Food item">
+                    <div class="flex-row">
+                        <input type="number" id="cal-cals" placeholder="Cals">
+                        <input type="number" id="cal-p" placeholder="P (g)">
+                        <input type="number" id="cal-c" placeholder="C (g)">
+                        <input type="number" id="cal-f" placeholder="F (g)">
+                    </div>
+                    <button onclick="addFood()">Log Food</button>
+                </div>
+                <div class="card">
+                    <h3>Today's Totals</h3>
+                    <h2 id="cal-total">0 kcal</h2>
+                    <p>Protein: <span id="mac-p">0</span>g | Carbs: <span id="mac-c">0</span>g | Fat: <span id="mac-f">0</span>g</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="trading" class="module">
+            <h1>Trading Journal</h1>
+            <div class="card">
+                <div class="flex-row">
+                    <input type="text" id="tr-asset" placeholder="Asset (e.g. BTC)">
+                    <select id="tr-dir"><option>Long</option><option>Short</option></select>
+                    <input type="number" id="tr-pnl" placeholder="P&L ($)">
+                    <button onclick="addTrade()">Log Trade</button>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card"><h3>Win Rate: <span id="tr-winrate">0%</span></h3></div>
+                <div class="card"><h3>Total P&L: $<span id="tr-totalpnl">0.00</span></h3></div>
+            </div>
+            <div class="card" id="tr-list"></div>
+        </div>
+
+        <div id="habits" class="module">
+            <h1>Habits</h1>
+            <div class="card" id="habits-list"></div>
+        </div>
+
+        <div id="sleep" class="module">
+            <h1>Sleep & Recovery</h1>
+            <div class="card">
+                <div class="flex-row">
+                    <input type="number" id="sl-hours" placeholder="Hours slept">
+                    <select id="sl-quality"><option>Excellent</option><option>Good</option><option>Fair</option><option>Poor</option></select>
+                    <button onclick="addSleep()">Log Sleep</button>
+                </div>
+            </div>
+            <div class="card" id="sl-list"></div>
+        </div>
+
+        <div id="journal" class="module">
+            <h1>Journal</h1>
+            <div class="card">
+                <input type="text" id="j-mood" placeholder="Mood / Vibe today">
+                <textarea id="j-entry" rows="4" placeholder="Free write or list gratitude / wins..."></textarea>
+                <button onclick="addJournal()">Save Entry</button>
+            </div>
+            <div class="card" id="j-list"></div>
+        </div>
+
+        <div id="weight" class="module">
+            <h1>Body Weight</h1>
+            <div class="card flex-row">
+                <input type="number" step="0.1" id="bw-val" placeholder="Weight">
+                <input type="text" id="bw-note" placeholder="Notes (optional)">
+                <button onclick="addWeight()">Log Weight</button>
+            </div>
+            <div class="card">
+                <canvas id="weightChart"></canvas>
+            </div>
+        </div>
+
+        <div id="water" class="module">
+            <h1>Water Intake</h1>
+            <div class="card text-center">
+                <h3>Goal: 8 Glasses</h3>
+                <div class="water-droplets" id="water-drops">
+                    <span class="droplet" onclick="toggleWater(0)">💧</span>
+                    <span class="droplet" onclick="toggleWater(1)">💧</span>
+                    <span class="droplet" onclick="toggleWater(2)">💧</span>
+                    <span class="droplet" onclick="toggleWater(3)">💧</span>
+                    <span class="droplet" onclick="toggleWater(4)">💧</span>
+                    <span class="droplet" onclick="toggleWater(5)">💧</span>
+                    <span class="droplet" onclick="toggleWater(6)">💧</span>
+                    <span class="droplet" onclick="toggleWater(7)">💧</span>
+                </div>
+                <p id="water-text">0 / 8 complete</p>
+            </div>
+        </div>
+
+        <div id="networth" class="module">
+            <h1>Net Worth Tracker</h1>
+            <div class="card flex-row">
+                <input type="text" id="nw-name" placeholder="Asset/Liability Name">
+                <input type="number" id="nw-val" placeholder="Value (use - for debt)">
+                <button onclick="addNetWorth()">Add Item</button>
+            </div>
+            <div class="card">
+                <h2>Total: $<span id="nw-total">0.00</span></h2>
+            </div>
+            <div class="card" id="nw-list"></div>
+        </div>
+
+        <div id="supplements" class="module">
+            <h1>Supplements & Meds</h1>
+            <div class="card flex-row">
+                <input type="text" id="sup-name" placeholder="Name & Dose">
+                <button onclick="addSupplement()">Add to Stack</button>
+            </div>
+            <div class="card" id="sup-list"></div>
+        </div>
+
+        <div id="pomodoro" class="module">
+            <h1>Focus Timer</h1>
+            <div class="card" style="text-align: center;">
+                <h3 id="timer-status">Focus Mode</h3>
+                <div class="timer-display" id="timer-display">25:00</div>
+                <div class="flex-row" style="justify-content: center;">
+                    <button style="width: auto;" onclick="startTimer()">Start</button>
+                    <button style="width: auto;" class="outline" onclick="pauseTimer()">Pause</button>
+                    <button style="width: auto;" class="outline" onclick="resetTimer()">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA MANAGEMENT ---
+        const DEFAULT_DATA = {
+            water: [false,false,false,false,false,false,false,false],
+            networth: [],
+            habits
