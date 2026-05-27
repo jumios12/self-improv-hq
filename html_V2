@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Improvement HQ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #080710;
+            --surface: rgba(255, 255, 255, 0.06); 
+            --surface-hover: rgba(255, 255, 255, 0.12);
+            --primary: #ffffff;
+            --secondary: rgba(255, 255, 255, 0.55);
+            --accent: #2f80ed; 
+            --danger: #ff453a; 
+            --success: #30d158; 
+            --border: rgba(255, 255, 255, 0.12); 
+            --radius: 24px; 
+            --glass-blur: blur(20px);
+            --webkit-glass-blur: blur(20px);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { 
+            background: var(--bg);
+            background-image: radial-gradient(circle at 10% 20%, rgba(90, 35, 190, 0.15) 0%, transparent 45%),
+                              radial-gradient(circle at 90% 80%, rgba(47, 128, 237, 0.15) 0%, transparent 45%);
+            color: var(--primary); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        .sidebar { 
+            width: 260px; 
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--webkit-glass-blur);
+            border-right: 1px solid var(--border); 
+            padding: 30px 0; 
+            display: flex; 
+            flex-direction: column; 
+            overflow-y: auto; 
+        }
+        .sidebar h2 { 
+            padding: 0 24px 24px; 
+            font-size: 1.1rem; 
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border); 
+            margin-bottom: 15px; 
+        }
+        .nav-item { 
+            padding: 14px 24px; 
+            cursor: pointer; 
+            color: var(--secondary); 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            font-size: 0.95rem; 
+            font-weight: 500;
+            margin: 2px 12px;
+            border-radius: 14px;
+        }
+        .nav-item:hover { 
+            color: var(--primary); 
+            background: rgba(255, 255, 255, 0.05); 
+        }
+        .nav-item.active { 
+            color: var(--primary); 
+            background: rgba(255, 255, 255, 0.1); 
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .module { display: none; max-width: 900px; margin: 0 auto; }
+        .module.active { display: block; animation: fadeIn 0.4s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { margin-bottom: 28px; font-weight: 600; letter-spacing: -0.5px; }
+        h3 { margin-bottom: 16px; font-weight: 500; color: var(--primary); }
+
+        .card { 
+            background: var(--surface); 
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--webkit-glass-blur);
+            padding: 24px; 
+            border-radius: var(--radius); 
+            border: 1px solid var(--border); 
+            margin-bottom: 24px; 
+            box-shadow: var(--shadow);
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        
+        input, select, textarea { 
+            background: rgba(255, 255, 255, 0.05); 
+            color: var(--primary); 
+            border: 1px solid var(--border); 
+            padding: 12px 16px; 
+            border-radius: 14px; 
+            margin-bottom: 12px; 
+            width: 100%; 
+            outline: none; 
+            transition: all 0.2s;
+        }
+        input:focus, select:focus, textarea:focus { 
+            border-color: rgba(255, 255, 255, 0.3); 
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        button { 
+            background: var(--primary); 
+            color: #000; 
+            font-weight: 600; 
+            cursor: pointer; 
+            border: none; 
+            padding: 12px 16px;
+            border-radius: 14px;
+            transition: all 0.2s; 
+            width: 100%;
+        }
+        button:hover { 
+            opacity: 0.9; 
+            transform: scale(0.99);
+        }
+        button.outline { 
+            background: rgba(255, 255, 255, 0.06); 
+            color: var(--primary); 
+            border: 1px solid var(--border); 
+        }
+        button.outline:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+        }
+
+        .flex-row { display: flex; gap: 12px; align-items: center; }
+        
+        .water-droplets { display: flex; gap: 12px; font-size: 2rem; cursor: pointer; margin: 20px 0; justify-content: center;}
+        .droplet { filter: grayscale(100%); opacity: 0.2; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .droplet:hover { transform: scale(1.2); }
+        .droplet.active { filter: grayscale(0%); opacity: 1; transform: scale(1.1); text-shadow: 0 0 15px rgba(47, 128, 237, 0.6); }
+        
+        .timer-display { font-size: 5.5rem; font-weight: 200; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
+        
+        .ai-message { 
+            border: 1px solid rgba(47, 128, 237, 0.3);
+            background: rgba(47, 128, 237, 0.1); 
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--webkit-glass-blur);
+            padding: 18px; 
+            border-radius: var(--radius); 
+            margin-bottom: 24px; 
+            font-size: 0.95rem;
+            line-height: 1.5;
+            box-shadow: var(--shadow);
+        }
+
+        .list-item { display: flex; justify-content: space-between; padding: 14px 4px; border-bottom: 1px solid var(--border); font-size: 0.95rem; align-items: center; }
+        .list-item:last-child { border-bottom: none; }
+        
+        .checkbox-label { display: flex; align-items: center; justify-content: space-between; padding: 12px 4px; border-bottom: 1px solid rgba(255,255,255,0.06); width: 100%; }
+        .checkbox-label:last-child { border-bottom: none; }
+        .checkbox-label-inner { display: flex; align-items: center; gap: 14px; cursor: pointer; }
+        .checkbox-label-inner input { width: auto; margin: 0; transform: scale(1.2); cursor: pointer; accent-color: var(--primary); }
+
+        .positive { color: var(--success); font-weight: 500; }
+        .negative { color: var(--danger); font-weight: 500; }
+        
+        canvas { max-height: 260px; width: 100%; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>HQ Dashboard</h2>
+        <div class="nav-item active" onclick="nav('overview', this)">Overview</div>
+        <div class="nav-item" onclick="nav('workout', this)">Workout</div>
+        <div class="nav-item" onclick="nav('calories', this)">Calories</div>
+        <div class="nav-item" onclick="nav('trading', this)">Trading Journal</div>
+        <div class="nav-item" onclick="nav('habits', this)">Habits</div>
+        <div class="nav-item" onclick="nav('sleep', this)">Sleep & Recovery</div>
+        <div class="nav-item" onclick="nav('journal', this)">Journal</div>
+        <div class="nav-item" onclick="nav('weight', this)">Body Weight</div>
+        <div class="nav-item" onclick="nav('water', this)">Water Intake</div>
+        <div class="nav-item" onclick="nav('networth', this)">Net Worth</div>
+        <div class="nav-item" onclick="nav('supplements', this)">Supplements</div>
+        <div class="nav-item" onclick="nav('pomodoro', this)">Focus Timer</div>
+    </div>
+
+    <div class="main-content">
+        <!-- 1. OVERVIEW -->
+        <div id="overview" class="module active">
+            <h1>HQ Overview</h1>
+            <div class="ai-message" id="ai-focus">Loading your AI focus message...</div>
+            <div class="grid-3">
+                <div class="card">
+                    <h3 style="color: var(--secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Water</h3>
+                    <p id="ov-water" style="font-size: 1.4rem; font-weight: 500; margin-top: 5px;">0 / 8 glasses</p>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Net Worth</h3>
+                    <p id="ov-nw" style="font-size: 1.4rem; font-weight: 500; margin-top: 5px;">$0.00</p>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Today's Habits</h3>
+                    <p id="ov-habits" style="font-size: 1.4rem; font-weight: 500; margin-top: 5px;">0 / 6 complete</p>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Weekly Weight Trend</h3>
+                <canvas id="overviewChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 2. WORKOUT -->
+        <div id="workout" class="module">
+            <h1>Workout Log</h1>
+            <div class="card">
+                <div class="flex-row">
+                    <select id="wo-type" style="margin-bottom:0; width: 140px;"><option>Push</option><option>Pull</option><option>Legs</option><option>Cardio</option></select>
+                    <input type="text" id="wo-exercise" placeholder="Exercise name" style="margin-bottom:0;">
+                    <input type="number" id="wo-weight" placeholder="Weight" style="margin-bottom:0; width: 100px;">
+                    <input type="number" id="wo-reps" placeholder="Reps" style="margin-bottom:0; width: 90px;">
+                    <button onclick="addWorkout()" style="width: auto; padding: 12px 24px;">Log Set</button>
+                </div>
+            </div>
+            <div class="card" id="wo-list"></div>
+        </div>
+
+        <!-- 3. CALORIES -->
+        <div id="calories" class="module">
+            <h1>Calories & Macros</h1>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Log Food</h3>
+                    <input type="text" id="cal-food" placeholder="Food item">
+                    <div class="flex-row">
+                        <input type="number" id="cal-cals" placeholder="Cals">
+                        <input type="number" id="cal-p" placeholder="P (g)">
+                        <input type="number" id="cal-c" placeholder="C (g)">
+                        <input type="number" id="cal-f" placeholder="F (g)">
+                    </div>
+                    <button onclick="addFood()">Log Food</button>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: center; text-align: center;">
+                    <h3 style="color: var(--secondary);">Today's Totals</h3>
+                    <h2 id="cal-total" style="font-size: 3rem; font-weight: 300; margin: 10px 0;">0 kcal</h2>
+                    <p style="color: var(--secondary)">Protein: <span id="mac-p" style="color:#fff">0</span>g | Carbs: <span id="mac-c" style="color:#fff">0</span>g | Fat: <span id="mac-f" style="color:#fff">0</span>g</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. TRADING -->
+        <div id="trading" class="module">
+            <h1>Trading Journal</h1>
+            <div class="card">
+                <div class="flex-row">
+                    <input type="text" id="tr-asset" placeholder="Asset (e.g. BTC)" style="margin-bottom:0;">
+                    <select id="tr-dir" style="margin-bottom:0; width: 120px;"><option>Long</option><option>Short</option></select>
+                    <input type="number" id="tr-pnl" placeholder="P&L ($)" style="margin-bottom:0;">
+                    <button onclick="addTrade()" style="width: auto; padding: 12px 24px;">Log Trade</button>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: var(--secondary); font-size: 0.9rem; text-transform: uppercase;">Win Rate</h3>
+                    <span id="tr-winrate" style="font-size: 2rem; font-weight: 500;">0%</span>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: var(--secondary); font-size: 0.9rem; text-transform: uppercase;">Total P&L</h3>
+                    <span style="font-size: 2rem; font-weight: 500;">$<span id="tr-totalpnl">0.00</span></span>
+                </div>
+            </div>
+            <div class="card" id="tr-list"></div>
+        </div>
+
+        <!-- 5. HABITS -->
+        <div id="habits" class="module">
+            <h1>Habits Management</h1>
+            <div class="card">
+                <h3>Create Custom Habit</h3>
+                <div class="flex-row">
+                    <input type="text" id="hab-name" placeholder="Habit name" style="margin-bottom:0;">
+                    <select id="hab-cat" style="margin-bottom:0; width: 160px;">
+                        <option>Mind</option>
+                        <option>Health</option>
+                        <option>Work</option>
+                        <option>Wealth</option>
+                    </select>
+                    <button onclick="addCustomHabit()" style="width: auto; padding: 12px 24px;">Create</button>
+                </div>
+            </div>
+            <div class="card" id="habits-list"></div>
+        </div>
+
+        <!-- 6. SLEEP -->
+        <div id="sleep" class="module">
+            <h1>Sleep & Recovery</h1>
+            <div class="card">
+                <div class="flex-row">
+                    <input type="number" id="sl-hours" placeholder="Hours slept" style="margin-bottom:0;">
+                    <select id="sl-quality" style="margin-bottom:0;"><option>Excellent</option><option>Good</option><option>Fair</option><option>Poor</option></select>
+                    <button onclick="addSleep()" style="width: auto; padding: 12px 24px;">Log Sleep</button>
+                </div>
+            </div>
+            <div class="card" id="sl-list"></div>
+        </div>
+
+        <!-- 7. JOURNAL -->
+        <div id="journal" class="module">
+            <h1>Journal</h1>
+            <div class="card">
+                <input type="text" id="j-mood" placeholder="Mood / Vibe today">
+                <textarea id="j-entry" rows="4" placeholder="Free write or list gratitude / wins..."></textarea>
+                <button onclick="addJournal()">Save Entry</button>
+            </div>
+            <div class="card" id="j-list"></div>
+        </div>
+
+        <!-- 8. BODY WEIGHT -->
+        <div id="weight" class="module">
+            <h1>Body Weight</h1>
+            <div class="card flex-row">
+                <input type="number" step="0.1" id="bw-val" placeholder="Weight" style="margin-bottom:0;">
+                <input type="text" id="bw-note" placeholder="Notes (optional)" style="margin-bottom:0;">
+                <button onclick="addWeight()" style="width: auto; padding: 12px 24px;">Log Weight</button>
+            </div>
+            <div class="card">
+                <canvas id="weightChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 9. WATER INTAKE -->
+        <div id="water" class="module">
+            <h1>Water Intake</h1>
+            <div class="card" style="text-align: center; padding: 40px 24px;">
+                <h3 style="color: var(--secondary); font-size: 1rem; text-transform: uppercase;">Daily Target: 8 Glasses</h3>
+                <div class="water-droplets" id="water-drops">
+                    <span class="droplet" onclick="toggleWater(0)">💧</span>
+                    <span class="droplet" onclick="toggleWater(1)">💧</span>
+                    <span class="droplet" onclick="toggleWater(2)">💧</span>
+                    <span class="droplet" onclick="toggleWater(3)">💧</span>
+                    <span class="droplet" onclick="toggleWater(4)">💧</span>
+                    <span class="droplet" onclick="toggleWater(5)">💧</span>
+                    <span class="droplet" onclick="toggleWater(6)">💧</span>
+                    <span class="droplet" onclick="toggleWater(7)">💧</span>
+                </div>
+                <p id="water-text" style="font-weight: 500; font-size: 1.1rem;">0 / 8 complete</p>
+            </div>
+        </div>
+
+        <!-- 10. NET WORTH -->
+        <div id="networth" class="module">
+            <h1>Net Worth Tracker</h1>
+            <div class="card flex-row">
+                <input type="text" id="nw-name" placeholder="Asset/Liability Name" style="margin-bottom:0;">
+                <input type="number" id="nw-val" placeholder="Value (use - for debt)" style="margin-bottom:0;">
+                <button onclick="addNetWorth()" style="width: auto; padding: 12px 24px;">Add Item</button>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.02)">
+                <h2 style="font-weight: 400;">Total Net Worth: <span id="nw-total" style="font-weight:600;">$0.00</span></h2>
+            </div>
+            <div class="card" id="nw-list"></div>
+        </div>
+
+        <!-- 11. SUPPLEMENTS -->
+        <div id="supplements" class="module">
+            <h1>Supplements & Meds</h1>
+            <div class="card flex-row">
+                <input type="text" id="sup-name" placeholder="Name & Dose (e.g. Omega 3 - 1000mg)" style="margin-bottom:0;">
+                <button onclick="addSupplement()" style="width: auto; padding: 12px 24px;">Add to Stack</button>
+            </div>
+            <div class="card" id="sup-list"></div>
+        </div>
+
+        <!-- 12. POMODORO -->
+        <div id="pomodoro" class="module">
+            <h1>Focus Timer</h1>
+            <div class="grid-2">
+                <div class="card" style="text-align: center; padding: 30px 24px;">
+                    <h3 id="timer-status" style="color: var(--secondary); text-transform: uppercase; letter-spacing: 1px;">Focus Mode</h3>
+                    <div class="timer-display" id="timer-display">25:00</div>
+                    
+                    <div id="session-dots" style="margin-bottom: 24px; display: flex; justify-content: center; gap: 10px;">
+                        <span style="width:10px; height:10px; background:rgba(255,255,255,0.2); border-radius:50%;"></span>
+                        <span style="width:10px; height:10px; background:rgba(255,255,255,0.2); border-radius:50%;"></span>
+                        <span style="width:10px; height:10px; background:rgba(255,255,255,0.2); border-radius:50%;"></span>
+                        <span style="width:10px; height:10px; background:rgba(255,255,255,0.2); border-radius:50%;"></span>
+                    </div>
+
+                    <div class="flex-row" style="justify-content: center; gap: 12px;">
+                        <button style="width: 100px;" onclick="startTimer()">Start</button>
+                        <button style="width: 100px;" class="outline" onclick="pauseTimer()">Pause</button>
+                        <button style="width: 100px;" class="outline" onclick="resetTimer()">Reset</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Timer Engine Settings</h3>
+                    <input type="text" id="pomo-task" placeholder="Target Objective (e.g., Coding Website)">
+                    <div class="grid-3" style="gap: 10px;">
+                        <div>
+                            <label style="font-size:0.75rem; color:var(--secondary)">Focus (m)</label>
+                            <input type="number" id="cfg-focus" value="25">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem; color:var(--secondary)">Short (m)</label>
+                            <input type="number" id="cfg-short" value="5">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem; color:var(--secondary)">Long (m)</label>
+                            <input type="number" id="cfg-long" value="15">
+                        </div>
+                    </div>
+                    <button class="outline" onclick="applyTimerSettings()" style="margin-top: 4px;">Update Configurations</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Completed Focus Logs</h3>
+                <div id="pomo-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA HUB ENGINE ---
+        const DEFAULT_DATA = {
+            water: [false,false,false,false,false,false,false,false],
+            networth: [],
+            habits: [
+                {name: "Read 10 pages", category: "Mind", done: false, streak: 0},
+                {name: "Workout", category: "Health", done: false, streak: 0},
+                {name: "Meditate 10 min", category: "Mind", done: false, streak: 0},
+                {name: "Plan tomorrow", category: "Work", done: false, streak: 0},
+                {name: "No junk food", category: "Health", done: false, streak: 0},
+                {name: "Sleep by 11 PM", category: "Health", done: false, streak: 0}
+            ],
+            weight: [],
+            trading: [],
+            calories: [],
+            workout: [],
+            sleep: [],
+            journal: [],
+            supplements: [],
+            pomoLog: []
+        };
+
+        let appData;
+        try {
+            appData = JSON.parse(localStorage.getItem('selfImprovementApp')) || DEFAULT_DATA;
+        } catch(e) {
+            appData = DEFAULT_DATA;
+        }
+        
+        Object.keys(DEFAULT_DATA).forEach(key => { if(!appData[key]) appData[key] = DEFAULT_DATA[key]; });
+
+        function saveData() {
+            localStorage.setItem('selfImprovementApp', JSON.stringify(appData));
+            updateOverview();
+        }
+
+        // --- CORE NAVIGATION ---
+        function nav(moduleId, btn) {
+            document.querySelectorAll('.module').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            const targetMod = document.getElementById(moduleId);
+            if(targetMod) targetMod.classList.add('active');
+            if(btn) btn.classList.add('active');
+            
+            if(moduleId === 'overview' || moduleId === 'weight') renderCharts();
+        }
+
+        // --- MODULE RUNTIME LOGIC ---
+
+        // 1. Dynamic AI Summary Dashboard
+        function updateOverview() {
+            const waterCount = appData.water.filter(w => w).length;
+            document.getElementById('ov-water').innerText = waterCount + ' / 8 glasses';
+            
+            const nwTotal = appData.networth.reduce((sum, item) => sum + Number(item.val), 0);
+            document.getElementById('ov-nw').innerText = '$' + nwTotal.toLocaleString();
+
+            const habCount = appData.habits.filter(h => h.done).length;
+            document.getElementById('ov-habits').innerText = habCount + ' / ' + appData.habits.length + ' complete';
+
+            let msg = "System ready. Execution velocity is stable. Continue pushing targets.";
+            if(waterCount < 4) msg = "Hydration metrics dropped. Consume fresh water immediately to defend baseline focus metrics.";
+            else if(habCount === appData.habits.length) msg = "Peak performance realized! 100% of custom habits locked down today.";
+            else if(appData.sleep.length > 0 && appData.sleep[appData.sleep.length-1].hours < 6) msg = "Central Nervous System down-regulation detected. Restructure workload and protect your recovery envelope.";
+            document.getElementById('ai-focus').innerText = 'AI Assistant Engine: "' + msg + '"';
+        }
+
+        // 2. Workout Management
+        function addWorkout() {
+            const t = document.getElementById('wo-type').value;
+            const e = document.getElementById('wo-exercise').value;
+            const w = document.getElementById('wo-weight').value;
+            const r = document.getElementById('wo-reps').value;
+            if(!e || !w || !r) return;
+            appData.workout.unshift({type: t, ex: e, w: w, r: r, date: new Date().toLocaleDateString()});
+            saveData(); renderWorkout();
+            document.getElementById('wo-exercise').value = '';
+            document.getElementById('wo-weight').value = '';
+            document.getElementById('wo-reps').value = '';
+        }
+        function renderWorkout() {
+            const html = appData.workout.map(w => '<div class="list-item"><span><b>' + w.type + ':</b> ' + w.ex + '</span> <span style="color:var(--secondary)">' + w.w + 'x' + w.r + ' (' + w.date + ')</span></div>').join('');
+            document.getElementById('wo-list').innerHTML = html || '<p style="color:var(--secondary)">No workouts logged yet.</p>';
+        }
+
+        // 3. Macro & Calorie Tracking
+        function addFood() {
+            const f = document.getElementById('cal-food').value;
+            const cals = Number(document.getElementById('cal-cals').value);
+            const p = Number(document.getElementById('cal-p').value || 0);
+            const c = Number(document.getElementById('cal-c').value || 0);
+            const fat = Number(document.getElementById('cal-f').value || 0);
+            if(!f || !cals) return;
+            appData.calories.push({f, cals, p, c, fat});
+            saveData(); renderCalories();
+            document.getElementById('cal-food').value = '';
+            document.getElementById('cal-cals').value = '';
+            document.getElementById('cal-p').value = '';
+            document.getElementById('cal-c').value = '';
+            document.getElementById('cal-f').value = '';
+        }
+        function renderCalories() {
+            let tc = 0, tp = 0, tcar = 0, tf = 0;
+            appData.calories.forEach(item => { tc+=item.cals; tp+=item.p; tcar+=item.c; tf+=item.fat; });
+            document.getElementById('cal-total').innerText = tc + ' kcal';
+            document.getElementById('mac-p').innerText = tp;
+            document.getElementById('mac-c').innerText = tcar;
+            document.getElementById('mac-f').innerText = tf;
+        }
+
+        // 4. Trading Log
+        function addTrade() {
+            const a = document.getElementById('tr-asset').value;
+            const d = document.getElementById('tr-dir').value;
+            const p = Number(document.getElementById('tr-pnl').value);
+            if(!a) return;
+            appData.trading.unshift({a, d, p});
+            saveData(); renderTrading();
+            document.getElementById('tr-asset').value = '';
+            document.getElementById('tr-pnl').value = '';
+        }
+        function renderTrading() {
+            let total = 0, wins = 0;
+            const html = appData.trading.map(t => {
+                total += t.p;
+                if(t.p > 0) wins++;
+                return '<div class="list-item"><span>' + t.d + ' ' + t.a + '</span> <span class="' + (t.p >= 0 ? 'positive' : 'negative') + '">' + (t.p >= 0 ? '+' : '') + '$' + t.p + '</span></div>';
+            }).join('');
+            document.getElementById('tr-list').innerHTML = html;
+            document.getElementById('tr-totalpnl').innerText = total.toFixed(2);
+            document.getElementById('tr-totalpnl').parentElement.className = total >= 0 ? 'positive' : 'negative';
+            const wr = appData.trading.length ? ((wins/appData.trading.length)*100).toFixed(0) : 0;
+            document.getElementById('tr-winrate').innerText = wr + '%';
+        }
+
+        // 5. Upgraded Habits & Category Engine
+        function addCustomHabit() {
+            const name = document.getElementById('hab-name').value;
+            const category = document.getElementById('hab-cat').value;
+            if(!name) return;
+            appData.habits.push({name, category, done: false, streak: 0});
+            saveData(); renderHabits();
+            document.getElementById('hab-name').value = '';
+        }
+        function toggleHabit(index) {
+            appData.habits[index].done = !appData.habits[index].done;
+            if(appData.habits[index].done) {
+                appData.habits[index].streak += 1;
+            } else {
+                if(appData.habits[index].streak > 0) appData.habits[index].streak -= 1;
+            }
+            saveData(); renderHabits();
+        }
+        function renderHabits() {
+            const html = appData.habits.map((h, i) => `
+                <div class="checkbox-label">
+                    <div class="checkbox-label-inner">
+                        <input type="checkbox" ${h.done ? 'checked' : ''} onchange="toggleHabit(${i})">
+                        <span style="${h.done ? 'text-decoration:line-through; color:var(--secondary)' : ''}">${h.name}</span>
+                    </div>
+                    <span style="font-size:0.8rem; color:var(--secondary)">
+                        <span style="background:rgba(255,255,255,0.08); padding:3px 8px; border-radius:8px; margin-right:8px; font-weight:500;">${h.category}</span>
+                        🔥 ${h.streak || 0} Days
+                    </span>
+                </div>
+            `).join('');
+            document.getElementById('habits-list').innerHTML = html;
+        }
+
+        // 6. Sleep Dynamics
+        function addSleep() {
+            const h = document.getElementById('sl-hours').value;
+            const q = document.getElementById('sl-quality').value;
+            if(!h) return;
+            appData.sleep.unshift({hours: h, quality: q, date: new Date().toLocaleDateString()});
+            saveData(); renderSleep();
+            document.getElementById('sl-hours').value = '';
+        }
+        function renderSleep() {
+            const html = appData.sleep.map(s => '<div class="list-item"><span>' + s.date + '</span> <span style="color:var(--secondary)">' + s.hours + 'h (' + s.quality + ')</span></div>').join('');
+            document.getElementById('sl-list').innerHTML = html;
+        }
+
+        // 7. Micro Journaling
+        function addJournal() {
+            const m = document.getElementById('j-mood').value;
+            const e = document.getElementById('j-entry').value;
+            if(!e) return;
+            appData.journal.unshift({mood: m, entry: e, date: new Date().toLocaleDateString()});
+            saveData(); renderJournal();
+            document.getElementById('j-mood').value = '';
+            document.getElementById('j-entry').value = '';
+        }
+        function renderJournal() {
+            const html = appData.journal.map(j => `
+                <div style="border-bottom: 1px solid var(--border); padding: 16px 0;">
+                    <p style="color:var(--secondary); font-size:0.85rem; margin-bottom:8px; font-weight:500;">${j.date} &nbsp;|&nbsp; Mood: ${j.mood || 'Neutral'}</p>
+                    <p style="line-height:1.5;">${j.entry}</p>
+                </div>
+            `).join('');
+            document.getElementById('j-list').innerHTML = html;
+        }
+
+        // 8. Body Weight Visual Tracking Architecture
+        function addWeight() {
+            const v = document.getElementById('bw-val').value;
+            const n = document.getElementById('bw-note').value;
+            if(!v) return;
+            appData.weight.push({val: Number(v), note: n, date: new Date().toLocaleDateString()});
+            saveData(); renderCharts();
+            document.getElementById('bw-val').value = '';
+            document.getElementById('bw-note').value = '';
+        }
+        
+        let wChart, oChart;
+        function renderCharts() {
+            if (typeof Chart === 'undefined') return;
+            try {
+                const wData = appData.weight.slice(-14);
+                const labels = wData.map(w => w.date);
+                const dataPoints = wData.map(w => w.val);
+
+                const cfg = {
+                    type: 'line',
+                    data: { 
+                        labels, 
+                        datasets: [{ 
+                            label: 'Weight Track', 
+                            data: dataPoints, 
+                            borderColor: '#ffffff', 
+                            borderWidth: 2,
+                            tension: 0.3, 
+                            backgroundColor: 'rgba(255, 255, 255, 0.04)', 
+                            fill: true,
+                            pointBackgroundColor: '#ffffff'
+                        }] 
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        scales: { 
+                            y: { grid: {color: 'rgba(255,255,255,0.06)'}, ticks: {color: 'rgba(255,255,255,0.4)'} }, 
+                            x: { grid: {display: false}, ticks: {color: 'rgba(255,255,255,0.4)'} } 
+                        }, 
+                        plugins: { legend: { display: false } } 
+                    }
+                };
+
+                if(document.getElementById('weightChart')) {
+                    if(wChart) wChart.destroy();
+                    wChart = new Chart(document.getElementById('weightChart'), cfg);
+                }
+                if(document.getElementById('overviewChart')) {
+                    if(oChart) oChart.destroy();
+                    oChart = new Chart(document.getElementById('overviewChart'), cfg);
+                }
+            } catch(err) {
+                console.log("Chart rendering deferred:", err);
+            }
+        }
+
+        // 9. Water Droplet Array
+        function toggleWater(index) {
+            appData.water[index] = !appData.water[index];
+            saveData(); renderWater();
+        }
+        function renderWater() {
+            const drops = document.getElementById('water-drops').children;
+            let count = 0;
+            for(let i=0; i<8; i++) {
+                if(appData.water[i]) { drops[i].classList.add('active'); count++; }
+                else { drops[i].classList.remove('active'); }
+            }
+            document.getElementById('water-text').innerText = count + ' / 8 complete';
+        }
+
+        // 10. Ledger Balance Sheet
+        function addNetWorth() {
+            const n = document.getElementById('nw-name').value;
+            const v = document.getElementById('nw-val').value;
+            if(!n || !v) return;
+            appData.networth.push({name: n, val: Number(v)});
+            saveData(); renderNetWorth();
+            document.getElementById('nw-name').value = '';
+            document.getElementById('nw-val').value = '';
+        }
+        function removeNetWorth(index) {
+            appData.networth.splice(index, 1);
+            saveData(); renderNetWorth();
+        }
+        function renderNetWorth() {
+            let total = 0;
+            const html = appData.networth.map((item, i) => {
+                total += item.val;
+                return '<div class="list-item"><span>' + item.name + '</span> <div><span class="' + (item.val >= 0 ? 'positive' : 'negative') + '">$' + item.val.toLocaleString() + '</span> <button class="outline" style="width:auto; padding:4px 10px; margin-left:12px; margin-bottom:0; border-radius:8px;" onclick="removeNetWorth(' + i + ')">✕</button></div></div>';
+            }).join('');
+            document.getElementById('nw-list').innerHTML = html;
+            document.getElementById('nw-total').innerText = '$' + total.toLocaleString();
+        }
+
+        // 11. Supplement Stack
+        function addSupplement() {
+            const s = document.getElementById('sup-name').value;
+            if(!s) return;
+            appData.supplements.push({name: s, done: false});
+            saveData(); renderSupplements();
+            document.getElementById('sup-name').value = '';
+        }
+        function toggleSup(index) {
+            appData.supplements[index].done = !appData.supplements[index].done;
+            saveData(); renderSupplements();
+        }
+        function renderSupplements() {
+            const html = appData.supplements.map((s, i) => `
+                <div class="checkbox-label">
+                    <div class="checkbox-label-inner">
+                        <input type="checkbox" ${s.done ? 'checked' : ''} onchange="toggleSup(${i})">
+                        <span style="${s.done ? 'text-decoration:line-through; color:var(--secondary)' : ''}">${s.name}</span>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('sup-list').innerHTML = html;
+        }
+
+        // 12. Upgraded Pro-Pomodoro Core Engine
+        let timerInterval;
+        let currentPhase = 'focus'; 
+        let timeLeft = 25 * 60;
+        let isRunning = false;
+        let completedFocusSessions = 0;
+
+        function applyTimerSettings() {
+            pauseTimer();
+            const focusM = Number(document.getElementById('cfg-focus').value) || 25;
+            if(currentPhase === 'focus') timeLeft = focusM * 60;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').innerText = m + ':' + s;
+            renderDots();
+        }
+
+        function renderDots() {
+            const dots = document.getElementById('session-dots').children;
+            for(let i = 0; i < 4; i++) {
+                if(i < (completedFocusSessions % 4)) {
+                    dots[i].style.background = 'var(--accent)';
+                    dots[i].style.boxShadow = '0 0 8px var(--accent)';
+                } else {
+                    dots[i].style.background = 'rgba(255,255,255,0.2)';
+                    dots[i].style.boxShadow = 'none';
+                }
+            }
+        }
+
+        function startTimer() {
+            if(isRunning) return;
+            isRunning = true;
+            timerInterval = setInterval(() => {
+                if(timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    handlePhaseCompletion();
+                }
+            }, 1000);
+        }
+
+        function handlePhaseCompletion() {
+            const currentTask = document.getElementById('pomo-task').value || 'Deep Focus Block';
+            
+            if (currentPhase === 'focus') {
+                completedFocusSessions++;
+                if(!appData.pomoLog) appData.pomoLog = [];
+                appData.pomoLog.unshift({
+                    task: currentTask,
+                    type: 'Focus Block',
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                saveData();
+                renderPomoLog();
+
+                if (completedFocusSessions % 4 === 0) {
+                    currentPhase = 'long';
+                    document.getElementById('timer-status').innerText = 'Long Break Phase';
+                    timeLeft = (Number(document.getElementById('cfg-long').value) || 15) * 60;
+                } else {
+                    currentPhase = 'short';
+                    document.getElementById('timer-status').innerText = 'Short Recovery Phase';
+                    timeLeft = (Number(document.getElementById('cfg-short').value) || 5) * 60;
+                }
+            } else {
+                currentPhase = 'focus';
+                document.getElementById('timer-status').innerText = 'Focus Mode';
+                timeLeft = (Number(document.getElementById('cfg-focus').value) || 25) * 60;
+            }
+            
+            updateTimerDisplay();
+            alert('Phase completed. Initializing: ' + currentPhase.toUpperCase());
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            const focusM = Number(document.getElementById('cfg-focus').value) || 25;
+            const shortM = Number(document.getElementById('cfg-short').value) || 5;
+            const longM = Number(document.getElementById('cfg-long').value) || 15;
+            
+            if(currentPhase === 'focus') timeLeft = focusM * 60;
+            else if(currentPhase === 'short') timeLeft = shortM * 60;
+            else if(currentPhase === 'long') timeLeft = longM * 60;
+            
+            updateTimerDisplay();
+        }
+
+        function renderPomoLog() {
+            if(!appData.pomoLog) appData.pomoLog = [];
+            const html = appData.pomoLog.map(log => `
+                <div class="list-item">
+                    <span>🎯 <b>${log.task}</b> (${log.type})</span>
+                    <span style="color:var(--secondary)">${log.time}</span>
+                </div>
+            `).join('');
+            document.getElementById('pomo-log').innerHTML = html || '<p style="color:var(--secondary)">No completed logs reported yet.</p>';
+        }
+
+        // --- GLOBAL BOOT ENGINE ---
+        function initApp() {
+            if(!appData.pomoLog) appData.pomoLog = [];
+            renderWorkout();
+            renderCalories();
+            renderTrading();
+            renderHabits();
+            renderSleep();
+            renderJournal();
+            renderWater();
+            renderNetWorth();
+            renderSupplements();
+            renderPomoLog();
+            updateOverview();
+            renderCharts();
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
