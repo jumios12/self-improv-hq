@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Improvement HQ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0c0b14;
+            --surface: rgba(255, 255, 255, 0.05); 
+            --surface-hover: rgba(255, 255, 255, 0.12);
+            --primary: #ffffff;
+            --secondary: rgba(255, 255, 255, 0.6);
+            --accent: #3a86ff; 
+            --danger: #ff0055; 
+            --success: #00f5d4; 
+            --border: rgba(255, 255, 255, 0.1); 
+            --radius: 20px; 
+            --glass-blur: blur(25px);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        body { 
+            background: var(--bg);
+            background-image: radial-gradient(circle at 5% 10%, rgba(143, 43, 255, 0.15) 0%, transparent 50%),
+                              radial-gradient(circle at 95% 90%, rgba(0, 245, 212, 0.12) 0%, transparent 50%);
+            color: var(--primary); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* Fixed Navigation System UI Layout */
+        .sidebar { 
+            width: 280px; 
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-right: 1px solid var(--border); 
+            padding: 25px 0; 
+            display: flex; 
+            flex-direction: column; 
+            overflow-y: auto; 
+        }
+        .sidebar h2 { 
+            padding: 0 24px 20px; 
+            font-size: 1.2rem; 
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border); 
+            margin-bottom: 15px; 
+            background: linear-gradient(45deg, #fff, var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-item { 
+            padding: 12px 20px; 
+            cursor: pointer; 
+            color: var(--secondary); 
+            transition: all 0.25s ease; 
+            font-size: 0.95rem; 
+            font-weight: 500;
+            margin: 3px 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+        }
+        .nav-item:hover { 
+            color: var(--primary); 
+            background: rgba(255, 255, 255, 0.05); 
+        }
+        .nav-item.active { 
+            color: var(--primary); 
+            background: rgba(255, 255, 255, 0.12); 
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+        }
+
+        /* Dynamic Viewport Module Architecture */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; position: relative; }
+        .module { display: none; max-width: 1000px; margin: 0 auto; }
+        .module.active { display: block !important; animation: viewFadeIn 0.3s ease-out; }
+        
+        @keyframes viewFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { margin-bottom: 30px; font-weight: 700; letter-spacing: -0.5px; font-size: 2.2rem; }
+        h3 { margin-bottom: 16px; font-weight: 600; font-size: 1.1rem; }
+
+        .card { 
+            background: var(--surface); 
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            padding: 24px; 
+            border-radius: var(--radius); 
+            border: 1px solid var(--border); 
+            margin-bottom: 24px; 
+            box-shadow: var(--shadow);
+        }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        
+        @media(max-width: 768px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; max-height: 200px; }
+        }
+
+        input, select, textarea { 
+            background: rgba(255, 255, 255, 0.05); 
+            color: var(--primary); 
+            border: 1px solid var(--border); 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            margin-bottom: 12px; 
+            width: 100%; 
+            outline: none; 
+            transition: all 0.2s ease;
+        }
+        input:focus, select:focus, textarea:focus { 
+            border-color: rgba(255, 255, 255, 0.25); 
+            background: rgba(255, 255, 255, 0.09);
+        }
+        
+        button { 
+            background: var(--primary); 
+            color: #000; 
+            font-weight: 600; 
+            cursor: pointer; 
+            border: none; 
+            padding: 12px 18px;
+            border-radius: 12px;
+            transition: all 0.2s ease; 
+            width: 100%;
+        }
+        button:hover { opacity: 0.95; transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+        button.outline { 
+            background: rgba(255, 255, 255, 0.06); 
+            color: var(--primary); 
+            border: 1px solid var(--border); 
+        }
+        button.outline:hover { background: rgba(255, 255, 255, 0.12); }
+
+        .flex-row { display: flex; gap: 12px; align-items: center; }
+        
+        /* Interactive Elements UI */
+        .water-droplets { display: flex; gap: 12px; font-size: 2.2rem; cursor: pointer; margin: 20px 0; justify-content: center;}
+        .droplet { filter: grayscale(100%); opacity: 0.2; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); user-select: none; }
+        .droplet:hover { transform: scale(1.2); }
+        .droplet.active { filter: grayscale(0%); opacity: 1; transform: scale(1.1); text-shadow: 0 0 15px rgba(58, 134, 255, 0.8); }
+        
+        .timer-display { font-size: 6rem; font-weight: 200; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
+        
+        .ai-message { 
+            border-left: 4px solid var(--accent);
+            background: rgba(58, 134, 255, 0.08); 
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            padding: 20px; 
+            border-radius: var(--radius); 
+            margin-bottom: 28px; 
+            font-size: 1rem;
+            line-height: 1.6;
+            box-shadow: var(--shadow);
+        }
+
+        .list-item { display: flex; justify-content: space-between; padding: 14px 6px; border-bottom: 1px solid var(--border); font-size: 0.95rem; align-items: center; }
+        .list-item:last-child { border-bottom: none; }
+        
+        .checkbox-label { display: flex; align-items: center; justify-content: space-between; padding: 14px 6px; border-bottom: 1px solid rgba(255,255,255,0.06); width: 100%; }
+        .checkbox-label:last-child { border-bottom: none; }
+        .checkbox-label-inner { display: flex; align-items: center; gap: 14px; cursor: pointer; }
+        .checkbox-label-inner input { width: auto; margin: 0; transform: scale(1.25); cursor: pointer; accent-color: var(--primary); }
+
+        .positive { color: var(--success); font-weight: 600; }
+        .negative { color: var(--danger); font-weight: 600; }
+        
+        canvas { max-height: 280px; width: 100%; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>HQ Dashboard</h2>
+        <div class="nav-item active" onclick="nav('overview', this)">Overview</div>
+        <div class="nav-item" onclick="nav('workout', this)">Workout Log</div>
+        <div class="nav-item" onclick="nav('calories', this)">Calories & Macros</div>
+        <div class="nav-item" onclick="nav('trading', this)">Trading Journal</div>
+        <div class="nav-item" onclick="nav('habits', this)">Habit Trackers</div>
+        <div class="nav-item" onclick="nav('sleep', this)">Sleep Analytics</div>
+        <div class="nav-item" onclick="nav('journal', this)">Daily Journal</div>
+        <div class="nav-item" onclick="nav('weight', this)">Body Metric Log</div>
+        <div class="nav-item" onclick="nav('water', this)">Water Hydration</div>
+        <div class="nav-item" onclick="nav('networth', this)">Net Worth Ledger</div>
+        <div class="nav-item" onclick="nav('supplements', this)">Supplement Stack</div>
+        <div class="nav-item" onclick="nav('pomodoro', this)">Focus Station</div>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="overview" class="module active">
+            <h1>Executive Summary</h1>
+            <div class="ai-message" id="ai-focus">Initializing core cognitive sync diagnostics...</div>
+            <div class="grid-3">
+                <div class="card">
+                    <h3 style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Hydration Matrix</h3>
+                    <p id="ov-water" style="font-size: 1.6rem; font-weight: 600; margin-top: 5px;">0 / 8 units</p>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Financial Net Worth</h3>
+                    <p id="ov-nw" style="font-size: 1.6rem; font-weight: 600; margin-top: 5px;">$0.00</p>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Habit Loops Locked</h3>
+                    <p id="ov-habits" style="font-size: 1.6rem; font-weight: 600; margin-top: 5px;">0 / 0 Executed</p>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Systemic Weight Metrics (14 Days)</h3>
+                <canvas id="overviewChart"></canvas>
+            </div>
+        </div>
+
+        <div id="workout" class="module">
+            <h1>Kinetic Training Engine</h1>
+            <div class="card">
+                <div class="flex-row">
+                    <select id="wo-type" style="margin-bottom:0; width: 150px;"><option>Push Day</option><option>Pull Day</option><option>Leg Day</option><option>Cardiovascular</option></select>
+                    <input type="text" id="wo-exercise" placeholder="Target Movement Profile" style="margin-bottom:0;">
+                    <input type="number" id="wo-weight" placeholder="Mass" style="margin-bottom:0; width: 110px;">
+                    <input type="number" id="wo-reps" placeholder="Reps" style="margin-bottom:0; width: 100px;">
+                    <button onclick="addWorkout()" style="width: auto; padding: 12px 24px;">Log Load</button>
+                </div>
+            </div>
+            <div class="card" id="wo-list"></div>
+        </div>
+
+        <div id="calories" class="module">
+            <h1>Metabolic Fuel Logs</h1>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Log Nutritional Input</h3>
+                    <input type="text" id="cal-food" placeholder="Food / Component Item">
+                    <div class="flex-row">
+                        <input type="number" id="cal-cals" placeholder="kcal">
+                        <input type="number" id="cal-p" placeholder="P (g)">
+                        <input type="number" id="cal-c" placeholder="C (g)">
+                        <input type="number" id="cal-f" placeholder="F (g)">
+                    </div>
+                    <button onclick="addFood()">Commit Entry</button>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: center; text-align: center;">
+                    <h3 style="color: var(--secondary);">Total Thermodynamic Intake</h3>
+                    <h2 id="cal-total" style="font-size: 3.5rem; font-weight: 300; margin: 12px 0;">0 kcal</h2>
+                    <p style="color: var(--secondary)">P: <span id="mac-p" style="color:#fff; font-weight:600">0</span>g &nbsp;|&nbsp; C: <span id="mac-c" style="color:#fff; font-weight:600">0</span>g &nbsp;|&nbsp; F: <span id="mac-f" style="color:#fff; font-weight:600">0</span>g</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="trading" class="module">
+            <h1>Quantitative Asset Matrix</h1>
+            <div class="card">
+                <div class="flex-row">
+                    <input type="text" id="tr-asset" placeholder="Asset / Ticker (e.g. ETH)" style="margin-bottom:0;">
+                    <select id="tr-dir" style="margin-bottom:0; width: 130px;"><option>Long</option><option>Short</option></select>
+                    <input type="number" id="tr-pnl" placeholder="Net P&L ($)" style="margin-bottom:0;">
+                    <button onclick="addTrade()" style="width: auto; padding: 12px 24px;">Record Execution</button>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: var(--secondary); font-size: 0.9rem; text-transform: uppercase;">Statistical Win Rate</h3>
+                    <span id="tr-winrate" style="font-size: 2.5rem; font-weight: 500;">0%</span>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: var(--secondary); font-size: 0.9rem; text-transform: uppercase;">Aggregated Net Return</h3>
+                    <span style="font-size: 2.5rem; font-weight: 500;">$<span id="tr-totalpnl">0.00</span></span>
+                </div>
+            </div>
+            <div class="card" id="tr-list"></div>
+        </div>
+
+        <div id="habits" class="module">
+            <h1>Neurological Habit Protocol</h1>
+            <div class="card">
+                <h3>Instantiate Custom Protocol</h3>
+                <div class="flex-row">
+                    <input type="text" id="hab-name" placeholder="Target Routine Name" style="margin-bottom:0;">
+                    <select id="hab-cat" style="margin-bottom:0; width: 180px;">
+                        <option>Mind</option>
+                        <option>Health</option>
+                        <option>Work</option>
+                        <option>Wealth</option>
+                    </select>
+                    <button onclick="addCustomHabit()" style="width: auto; padding: 12px 24px;">Instantiate</button>
+                </div>
+            </div>
+            <div class="card" id="habits-list"></div>
+        </div>
+
+        <div id="sleep" class="module">
+            <h1>Circadian Architecture Logs</h1>
+            <div class="card">
+                <div class="flex-row">
+                    <input type="number" step="0.1" id="sl-hours" placeholder="Duration (Hours)" style="margin-bottom:0;">
+                    <select id="sl-quality" style="margin-bottom:0; width: 180px;"><option>Excellent</option><option>Good</option><option>Fair</option><option>Poor</option></select>
+                    <button onclick="addSleep()" style="width: auto; padding: 12px 24px;">Log Recovery</button>
+                </div>
+            </div>
+            <div class="card" id="sl-list"></div>
+        </div>
+
+        <div id="journal" class="module">
+            <h1>Cognitive Architecture Journal</h1>
+            <div class="card">
+                <input type="text" id="j-mood" placeholder="Psychological Vibe Vector Index">
+                <textarea id="j-entry" rows="5" placeholder="Document unfiltered conceptual realizations, tactical errors, or dynamic optimization targets..."></textarea>
+                <button onclick="addJournal()">Store Core Entry</button>
+            </div>
+            <div class="card" id="j-list"></div>
+        </div>
+
+        <div id="weight" class="module">
+            <h1>Biological Mass Matrix</h1>
+            <div class="card flex-row">
+                <input type="number" step="0.1" id="bw-val" placeholder="Mass Value" style="margin-bottom:0;">
+                <input type="text" id="bw-note" placeholder="Metric Context Notes (e.g. Fasted)" style="margin-bottom:0;">
+                <button onclick="addWeight()" style="width: auto; padding: 12px 24px;">Append Metric</button>
+            </div>
+            <div class="card">
+                <canvas id="weightChart"></canvas>
+            </div>
+        </div>
+
+        <div id="water" class="module">
+            <h1>Fluid Volumetric Management</h1>
+            <div class="card" style="text-align: center; padding: 50px 20px;">
+                <h3 style="color: var(--secondary); text-transform: uppercase; font-size: 0.9rem;">Hydration Objective Profile: 8 Units</h3>
+                <div class="water-droplets" id="water-drops">
+                    <span class="droplet" onclick="toggleWater(0)">💧</span>
+                    <span class="droplet" onclick="toggleWater(1)">💧</span>
+                    <span class="droplet" onclick="toggleWater(2)">💧</span>
+                    <span class="droplet" onclick="toggleWater(3)">💧</span>
+                    <span class="droplet" onclick="toggleWater(4)">💧</span>
+                    <span class="droplet" onclick="toggleWater(5)">💧</span>
+                    <span class="droplet" onclick="toggleWater(6)">💧</span>
+                    <span class="droplet" onclick="toggleWater(7)">💧</span>
+                </div>
+                <p id="water-text" style="font-weight: 600; font-size: 1.2rem; color: var(--accent);">0 / 8 Completed</p>
+            </div>
+        </div>
+
+        <div id="networth" class="module">
+            <h1>Capital Liquidity Balance Sheet</h1>
+            <div class="card flex-row">
+                <input type="text" id="nw-name" placeholder="Asset Pool Description / Liability Title" style="margin-bottom:0;">
+                <input type="number" id="nw-val" placeholder="Valuation Vector (Negative for Debt)" style="margin-bottom:0;">
+                <button onclick="addNetWorth()" style="width: auto; padding: 12px 24px;">Append Position</button>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.02)">
+                <h2 style="font-weight: 400;">Aggregated Net Holdings Worth: <span id="nw-total" style="font-weight:700; color:var(--success)">$0.00</span></h2>
+            </div>
+            <div class="card" id="nw-list"></div>
+        </div>
+
+        <div id="supplements" class="module">
+            <h1>Micronutrient & Supplement Stack</h1>
+            <div class="card flex-row">
+                <input type="text" id="sup-name" placeholder="Compound Molecule ID & Dosage (e.g. NMN - 500mg)" style="margin-bottom:0;">
+                <button onclick="addSupplement()" style="width: auto; padding: 12px 24px;">Inject Stack</button>
+            </div>
+            <div class="card" id="sup-list"></div>
+        </div>
+
+        <div id="pomodoro" class="module">
+            <h1>Neural Processing Focus Timer</h1>
+            <div class="grid-2">
+                <div class="card" style="text-align: center; padding: 35px 20px;">
+                    <h3 id="timer-status" style="color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px;">Cognitive Loading</h3>
+                    <div class="timer-display" id="timer-display">25:00</div>
+                    
+                    <div id="session-dots" style="margin-bottom: 25px; display: flex; justify-content: center; gap: 12px;">
+                        <span style="width:12px; height:12px; background:rgba(255,255,255,0.15); border-radius:50%;"></span>
+                        <span style="width:12px; height:12px; background:rgba(255,255,255,0.15); border-radius:50%;"></span>
+                        <span style="width:12px; height:12px; background:rgba(255,255,255,0.15); border-radius:50%;"></span>
+                        <span style="width:12px; height:12px; background:rgba(255,255,255,0.15); border-radius:50%;"></span>
+                    </div>
+
+                    <div class="flex-row" style="justify-content: center; gap: 14px;">
+                        <button style="width: 110px;" onclick="startTimer()">Initialize</button>
+                        <button style="width: 110px;" class="outline" onclick="pauseTimer()">Halt</button>
+                        <button style="width: 110px;" class="outline" onclick="resetTimer()">Purge</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Focus Engine Config</h3>
+                    <input type="text" id="pomo-task" placeholder="Operational Objective Statement">
+                    <div class="grid-3" style="gap: 12px;">
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--secondary); display:block; margin-bottom:4px;">Work (m)</label>
+                            <input type="number" id="cfg-focus" value="25">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--secondary); display:block; margin-bottom:4px;">Short (m)</label>
+                            <input type="number" id="cfg-short" value="5">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--secondary); display:block; margin-bottom:4px;">Long (m)</label>
+                            <input type="number" id="cfg-long" value="15">
+                        </div>
+                    </div>
+                    <button class="outline" onclick="applyTimerSettings()" style="margin-top: 6px;">Sync Timing Configurations</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Completed Deep Focus Sessions</h3>
+                <div id="pomo-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CENTRALIZED DATA INFRASTRUCTURE ARCHITECTURE ---
+        const DEFAULT_DATA = {
+            water: [false,false,false,false,false,false,false,false],
+            networth: [],
+            habits: [
+                {name: "Read 10 pages", category: "Mind", done: false, streak: 0},
+                {name: "Workout Protocol", category: "Health", done: false, streak: 0},
+                {name: "Neurological Meditation", category: "Mind", done: false, streak: 0},
+                {name: "Strategic Next-Day Planning", category: "Work", done: false, streak: 0},
+                {name: "Glycemic Index Control", category: "Health", done: false, streak: 0},
+                {name: "Delta Sleep Sync (11 PM)", category: "Health", done: false, streak: 0}
+            ],
+            weight: [],
+            trading: [],
+            calories: [],
+            workout: [],
+            sleep: [],
+            journal: [],
+            supplements: [],
+            pomoLog: []
+        };
+
+        let appData = DEFAULT_DATA;
+        
+        // Structural validation logic protects memory states from corruption
+        try {
+            const stored = localStorage.getItem('selfImprovementApp');
+            if(stored) {
+                const parsed = JSON.parse(stored);
+                if(parsed && typeof parsed === 'object') {
+                    Object.keys(DEFAULT_DATA).forEach(key => {
+                        if (Array.isArray(DEFAULT_DATA[key])) {
+                            appData[key] = Array.isArray(parsed[key]) ? parsed[key] : [...DEFAULT_DATA[key]];
+                        } else {
+                            appData[key] = parsed[key] !== undefined ? parsed[key] : DEFAULT_DATA[key];
+                        }
+                    });
+                }
+            }
+        } catch(e) {
+            console.error("Local storage error state. Forcing recovery default profile structure.", e);
+            appData = DEFAULT_DATA;
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('selfImprovementApp', JSON.stringify(appData));
+            } catch(e) {
+                console.error("State compilation writing failure.", e);
+            }
+            safeExecute(updateOverview, "Overview Refresh");
+        }
+
+        // --- CORE TAB INTERACTION ARCHITECTURE ---
+        window.nav = function(moduleId, btnElement) {
+            // Unconditionally strip out all active state rendering profiles
+            document.querySelectorAll('.module').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            const targetedModule = document.getElementById(moduleId);
+            if(targetedModule) {
+                targetedModule.classList.add('active');
+            }
+            
+            if(btnElement) {
+                btnElement.classList.add('active');
+            } else {
+                // Secondary check interface resolution fallback highlighting logic
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    const clickAttr = item.getAttribute('onclick');
+                    if(clickAttr && clickAttr.includes(`'${moduleId}'`)) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+            
+            // Re-render complex analytical components when standard window context updates focus
+            if(moduleId === 'overview' || moduleId === 'weight') {
+                safeExecute(renderCharts, "Analytical Rendering Core");
+            }
+        };
+
+        // --- RECOVERY FALLSAFE CONTAINER SANITATION SYSTEM ---
+        function safeExecute(functionalBlock, debugContextName) {
+            try {
+                functionalBlock();
+            } catch(errorState) {
+                console.error(`Isolated execution warning inside [${debugContextName}]: `, errorState);
+            }
+        }
+
+        // --- INDEPENDENT FUNCTIONAL MODULES ARCHITECTURE ---
+
+        // MODULE 1: Overview Summaries
+        function updateOverview() {
+            const waterVolumeCount = appData.water.filter(w => w).length;
+            document.getElementById('ov-water').innerText = waterVolumeCount + ' / 8 Units';
+            
+            const netBalanceAssetTotal = appData.networth.reduce((accum, asset) => accum + Number(asset.val || 0), 0);
+            document.getElementById('ov-nw').innerText = '$' + netBalanceAssetTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            const currentActiveCompletedHabits = appData.habits.filter(h => h.done).length;
+            document.getElementById('ov-habits').innerText = currentActiveCompletedHabits + ' / ' + appData.habits.length + ' Complete';
+
+            let dynamicStringAI = "Systems fully optimized. Computational trajectory is completely normal. Continue pushing targets.";
+            if(waterVolumeCount < 4) {
+                dynamicStringAI = "Fluid matrix depleted. Cellular hydration levels tracking low. Rectify input deficit to preserve energy metrics.";
+            } else if(currentActiveCompletedHabits === appData.habits.length && appData.habits.length > 0) {
+                dynamicStringAI = "Peak output matrix realized! 100% execution across all logged core neural habits.";
+            } else if(appData.sleep.length > 0 && Number(appData.sleep[0].hours) < 6.5) {
+                dynamicStringAI = "System recovery payload warning: Deficits observed in neural rest cycles. Structure lighter focus block patterns.";
+            }
+            document.getElementById('ai-focus').innerText = 'AI Diagnostic Uplink: "' + dynamicStringAI + '"';
+        }
+
+        // MODULE 2: Workout Logging Logic Engine
+        function addWorkout() {
+            const type = document.getElementById('wo-type').value;
+            const exName = document.getElementById('wo-exercise').value.trim();
+            const weightVal = document.getElementById('wo-weight').value;
+            const repsVal = document.getElementById('wo-reps').value;
+            if(!exName || !weightVal || !repsVal) return;
+            
+            appData.workout.unshift({type, ex: exName, w: weightVal, r: repsVal, date: new Date().toLocaleDateString()});
+            saveData(); safeExecute(renderWorkout, "Workout Display Layer");
+            document.getElementById('wo-exercise').value = '';
+            document.getElementById('wo-weight').value = '';
+            document.getElementById('wo-reps').value = '';
+        }
+        function renderWorkout() {
+            const container = document.getElementById('wo-list');
+            if(!container) return;
+            const outputHTML = appData.workout.map(w => `<div class="list-item"><span><b>${w.type}:</b> ${w.ex}</span> <span style="color:var(--secondary)">${w.w} kg × ${w.r} Reps (${w.date})</span></div>`).join('');
+            container.innerHTML = outputHTML || '<p style="color:var(--secondary); font-size:0.9rem;">No operational lifting metrics recorded today.</p>';
+        }
+
+        // MODULE 3: Macronutrient Profiles
+        function addFood() {
+            const label = document.getElementById('cal-food').value.trim();
+            const kcals = Number(document.getElementById('cal-cals').value || 0);
+            const pro = Number(document.getElementById('cal-p').value || 0);
+            const carb = Number(document.getElementById('cal-c').value || 0);
+            const fats = Number(document.getElementById('cal-f').value || 0);
+            if(!label || !kcals) return;
+
+            appData.calories.unshift({label, kcals, pro, carb, fats});
+            saveData(); safeExecute(renderCalories, "Nutrition Display Layer");
+            document.getElementById('cal-food').value = '';
+            document.getElementById('cal-cals').value = '';
+            document.getElementById('cal-p').value = '';
+            document.getElementById('cal-c').value = '';
+            document.getElementById('cal-f').value = '';
+        }
+        function renderCalories() {
+            let aggregationCals = 0, aggregationPro = 0, aggregationCarb = 0, aggregationFat = 0;
+            appData.calories.forEach(item => { 
+                aggregationCals += Number(item.kcals || 0); 
+                aggregationPro += Number(item.pro || 0); 
+                aggregationCarb += Number(item.carb || 0); 
+                aggregationFat += Number(item.fats || 0); 
+            });
+            document.getElementById('cal-total').innerText = aggregationCals + ' kcal';
+            document.getElementById('mac-p').innerText = aggregationPro;
+            document.getElementById('mac-c').innerText = aggregationCarb;
+            document.getElementById('mac-f').innerText = aggregationFat;
+        }
+
+        // MODULE 4: Quantitative Trading Matrices
+        function addTrade() {
+            const assetTicker = document.getElementById('tr-asset').value.toUpperCase().trim();
+            const positionDirection = document.getElementById('tr-dir').value;
+            const rawPnL = Number(document.getElementById('tr-pnl').value || 0);
+            if(!assetTicker) return;
+
+            appData.trading.unshift({asset: assetTicker, dir: positionDirection, pnl: rawPnL});
+            saveData(); safeExecute(renderTrading, "Trading List Layer");
+            document.getElementById('tr-asset').value = '';
+            document.getElementById('tr-pnl').value = '';
+        }
+        function renderTrading() {
+            let combinedNetPnL = 0, totalProfitableTrades = 0;
+            const targetContainer = document.getElementById('tr-list');
+            if(!targetContainer) return;
+
+            const structuredHTML = appData.trading.map(t => {
+                combinedNetPnL += Number(t.pnl || 0);
+                if(Number(t.pnl) > 0) totalProfitableTrades++;
+                return `<div class="list-item"><span><b>${t.dir}</b> ${t.asset}</span> <span class="${t.pnl >= 0 ? 'positive' : 'negative'}">${t.pnl >= 0 ? '+' : ''}$${Number(t.pnl).toFixed(2)}</span></div>`;
+            }).join('');
+            
+            targetContainer.innerHTML = structuredHTML || '<p style="color:var(--secondary); font-size:0.9rem;">No recorded trades within memory buffers.</p>';
+            document.getElementById('tr-totalpnl').innerText = combinedNetPnL.toFixed(2);
+            document.getElementById('tr-totalpnl').parentElement.className = combinedNetPnL >= 0 ? 'positive' : 'negative';
+            
+            const overallWinRatePct = appData.trading.length ? ((totalProfitableTrades / appData.trading.length) * 100).toFixed(0) : 0;
+            document.getElementById('tr-winrate').innerText = overallWinRatePct + '%';
+        }
+
+        // MODULE 5: Habits Engines
+        function addCustomHabit() {
+            const inputVal = document.getElementById('hab-name').value.trim();
+            const selectedCategory = document.getElementById('hab-cat').value;
+            if(!inputVal) return;
+
+            appData.habits.push({name: inputVal, category: selectedCategory, done: false, streak: 0});
+            saveData(); safeExecute(renderHabits, "Habit Generation Layer");
+            document.getElementById('hab-name').value = '';
+        }
+        window.toggleHabit = function(elementIndex) {
+            if(!appData.habits[elementIndex]) return;
+            appData.habits[elementIndex].done = !appData.habits[elementIndex].done;
+            if(appData.habits[elementIndex].done) {
+                appData.habits[elementIndex].streak = (Number(appData.habits[elementIndex].streak) || 0) + 1;
+            } else {
+                if((Number(appData.habits[elementIndex].streak) || 0) > 0) {
+                    appData.habits[elementIndex].streak -= 1;
+                }
+            }
+            saveData(); safeExecute(renderHabits, "Habit State Management View");
+        };
+        function renderHabits() {
+            const listTarget = document.getElementById('habits-list');
+            if(!listTarget) return;
+
+            const habitsHTML = appData.habits.map((h, idx) => `
+                <div class="checkbox-label">
+                    <div class="checkbox-label-inner">
+                        <input type="checkbox" ${h.done ? 'checked' : ''} onchange="toggleHabit(${idx})">
+                        <span style="${h.done ? 'text-decoration:line-through; color:var(--secondary);' : ''}">${h.name}</span>
+                    </div>
+                    <span style="font-size:0.85rem; color:var(--secondary)">
+                        <span style="background:rgba(255,255,255,0.06); padding:4px 10px; border-radius:6px; margin-right:8px; font-weight:600; font-size:0.75rem;">${h.category}</span>
+                        ⚡ ${h.streak || 0} Days
+                    </span>
+                </div>
+            `).join('');
+            listTarget.innerHTML = habitsHTML || '<p style="color:var(--secondary); font-size:0.9rem;">No operational tracks active.</p>';
+        }
+
+        // MODULE 6: Sleep Profiles
+        function addSleep() {
+            const hrs = document.getElementById('sl-hours').value;
+            const qual = document.getElementById('sl-quality').value;
+            if(!hrs) return;
+
+            appData.sleep.unshift({hours: hrs, quality: qual, date: new Date().toLocaleDateString()});
+            saveData(); safeExecute(renderSleep, "Sleep Layout Layer");
+            document.getElementById('sl-hours').value = '';
+        }
+        function renderSleep() {
+            const sleepView = document.getElementById('sl-list');
+            if(!sleepView) return;
+            sleepView.innerHTML = appData.sleep.map(s => `<div class="list-item"><span>${s.date}</span> <span style="color:var(--secondary); font-weight:500;">${s.hours} Hours (${s.quality} State)</span></div>`).join('');
+        }
+
+        // MODULE 7: Dynamic Processing Journaling
+        function addJournal() {
+            const moodIndex = document.getElementById('j-mood').value.trim() || 'Neutral';
+            const logBlock = document.getElementById('j-entry').value.trim();
+            if(!logBlock) return;
+
+            appData.journal.unshift({mood: moodIndex, entry: logBlock, date: new Date().toLocaleDateString()});
+            saveData(); safeExecute(renderJournal, "Journal Array Render");
+            document.getElementById('j-mood').value = '';
+            document.getElementById('j-entry').value = '';
+        }
+        function renderJournal() {
+            const journalUI = document.getElementById('j-list');
+            if(!journalUI) return;
+
+            journalUI.innerHTML = appData.journal.map(j => `
+                <div style="border-bottom:1px solid var(--border); padding:18px 0; font-size:0.95rem;">
+                    <p style="color:var(--secondary); font-size:0.8rem; margin-bottom:6px; font-weight:600;">LOG DATE: ${j.date} &nbsp;|&nbsp; STRUCTURAL MOOD STATE: ${j.mood}</p>
+                    <p style="line-height:1.6; color:#e0e0e0; white-space: pre-wrap;">${j.entry}</p>
+                </div>
+            `).join('');
+        }
+
+        // MODULE 8: Mass Analytics & Mathematical Plot Engine
+        function addWeight() {
+            const bodyMassVal = document.getElementById('bw-val').value;
+            const observationNotes = document.getElementById('bw-note').value.trim() || 'Unspecified';
+            if(!bodyMassVal) return;
+
+            appData.weight.push({val: Number(bodyMassVal), note: observationNotes, date: new Date().toLocaleDateString()});
+            saveData(); safeExecute(renderCharts, "Mass Metrics Re-Plot");
+            document.getElementById('bw-val').value = '';
+            document.getElementById('bw-note').value = '';
+        }
+
+        let operationalWeightChartInstance = null;
+        let operationalOverviewChartInstance = null;
+
+        function renderCharts() {
+            if (typeof Chart === 'undefined') {
+                console.warn("ChartJS link dropped or unreachable.");
+                return;
+            }
+            
+            const realWeightsArray = appData.weight || [];
+            if(realWeightsArray.length === 0) return;
+
+            const constrainedTimeline = realWeightsArray.slice(-14);
+            const timelineLabels = constrainedTimeline.map(item => item.date);
+            const coordinatesDataPoints = constrainedTimeline.map(item => item.val);
+
+            const chartConfigurationObject = {
+                type: 'line',
+                data: {
+                    labels: timelineLabels,
+                    datasets: [{
+                        label: 'Mass Index Progression',
+                        data: coordinatesDataPoints,
+                        borderColor: '#ffffff',
+                        borderWidth: 2.5,
+                        tension: 0.25,
+                        backgroundColor: 'rgba(58, 134, 255, 0.08)',
+                        fill: true,
+                        pointBackgroundColor: '#3a86ff',
+                        pointBorderColor: '#ffffff',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            };
+
+            const targetW = document.getElementById('weightChart');
+            if(targetW) {
+                if(operationalWeightChartInstance) operationalWeightChartInstance.destroy();
+                operationalWeightChartInstance = new Chart(targetW, chartConfigurationObject);
+            }
+
+            const targetO = document.getElementById('overviewChart');
+            if(targetO) {
+                if(operationalOverviewChartInstance) operationalOverviewChartInstance.destroy();
+                // Deep duplication clone of options configuration structure mapping
+                operationalOverviewChartInstance = new Chart(targetO, JSON.parse(JSON.stringify(chartConfigurationObject)));
+            }
+        }
+
+        // MODULE 9: Fluid Volumetric Matrices
+        window.toggleWater = function(dropletCoordinateIndex) {
+            appData.water[dropletCoordinateIndex] = !appData.water[dropletCoordinateIndex];
+            saveData(); safeExecute(renderWater, "Water Engine View Render");
+        };
+        function renderWater() {
+            const elementsCluster = document.getElementById('water-drops').children;
+            let counterActiveTotal = 0;
+            for(let i=0; i<8; i++) {
+                if(appData.water[i]) {
+                    elementsCluster[i].classList.add('active');
+                    counterActiveTotal++;
+                } else {
+                    elementsCluster[i].classList.remove('active');
+                }
+            }
+            document.getElementById('water-text').innerText = `${counterActiveTotal} / 8 Arrays Satiated`;
+        }
+
+        // MODULE 10: Ledger Matrix Accounting Sheet
+        function addNetWorth() {
+            const accountPoolTitle = document.getElementById('nw-name').value.trim();
+            const validationValue = document.getElementById('nw-val').value;
+            if(!accountPoolTitle || !validationValue) return;
+
+            appData.networth.push({name: accountPoolTitle, val: Number(validationValue)});
+            saveData(); safeExecute(renderNetWorth, "Balance Sheet Re-computation");
+            document.getElementById('nw-name').value = '';
+            document.getElementById('nw-val').value = '';
+        }
+        window.removeNetWorthItem = function(indexPositionKey) {
+            appData.networth.splice(indexPositionKey, 1);
+            saveData(); safeExecute(renderNetWorth, "Balance Sheet Mutation Flush");
+        };
+        function renderNetWorth() {
+            let consolidatedNetSumValue = 0;
+            const listTargetLocation = document.getElementById('nw-list');
+            if(!listTargetLocation) return;
+
+            const mappingHTMLOutput = appData.networth.map((item, keyIdx) => {
+                consolidatedNetSumValue += Number(item.val || 0);
+                return `
+                    <div class="list-item">
+                        <span>${item.name}</span>
+                        <div>
+                            <span class="${item.val >= 0 ? 'positive' : 'negative'}">$${Number(item.val).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                            <button class="outline" style="width:auto; padding:4px 10px; margin-left:12px; margin-bottom:0; border-radius:6px; font-size:0.75rem;" onclick="removeNetWorthItem(${keyIdx})">✕</button>
+                        </div>
+                    </div>`;
+            }).join('');
+            
+            listTargetLocation.innerHTML = mappingHTMLOutput;
+            document.getElementById('nw-total').innerText = '$' + consolidatedNetSumValue.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('nw-total').className = consolidatedNetSumValue >= 0 ? 'positive' : 'negative';
+        }
+
+        // MODULE 11: Supplements Architecture Stack
+        function addSupplement() {
+            const formulationNameString = document.getElementById('sup-name').value.trim();
+            if(!formulationNameString) return;
+
+            appData.supplements.push({name: formulationNameString, done: false});
+            saveData(); safeExecute(renderSupplements, "Supplement Storage Output");
+            document.getElementById('sup-name').value = '';
+        }
+        window.toggleSupplementStatus = function(idxPosition) {
+            if(!appData.supplements[idxPosition]) return;
+            appData.supplements[idxPosition].done = !appData.supplements[idxPosition].done;
+            saveData(); safeExecute(renderSupplements, "Supplement List Refactor");
+        };
+        function renderSupplements() {
+            const stackTargetUI = document.getElementById('sup-list');
+            if(!stackTargetUI) return;
+
+            stackTargetUI.innerHTML = appData.supplements.map((s, idx) => `
+                <div class="checkbox-label">
+                    <div class="checkbox-label-inner">
+                        <input type="checkbox" ${s.done ? 'checked' : ''} onchange="toggleSupplementStatus(${idx})">
+                        <span style="${s.done ? 'text-decoration:line-through; color:var(--secondary)' : ''}">${s.name}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // MODULE 12: Cognitive Clock Pomodoro Engine System
+        let countdownTickerIntervalReference = null;
+        let activeTimingPhaseKey = 'focus'; 
+        let calculationSecondsRemainingValue = 25 * 60;
+        let isClockStateRunningFlag = false;
+        let totalSuccessfullyLoggedBlocks = 0;
+
+        function applyTimerSettings() {
+            pauseTimer();
+            const configMinutesTarget = Number(document.getElementById('cfg-focus').value) || 25;
+            if(activeTimingPhaseKey === 'focus') {
+                calculationSecondsRemainingValue = configMinutesTarget * 60;
+            }
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const computedMinutes = Math.floor(calculationSecondsRemainingValue / 60).toString().padStart(2, '0');
+            const computedSeconds = (calculationSecondsRemainingValue % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').innerText = computedMinutes + ':' + computedSeconds;
+            renderPomoSessionDots();
+        }
+
+        function renderPomoSessionDots() {
+            const nodeDotElements = document.getElementById('session-dots').children;
+            for(let i = 0; i < 4; i++) {
+                if(i < (totalSuccessfullyLoggedBlocks % 4)) {
+                    nodeDotElements[i].style.background = 'var(--success)';
+                    nodeDotElements[i].style.boxShadow = '0 0 10px var(--success)';
+                } else {
+                    nodeDotElements[i].style.background = 'rgba(255,255,255,0.15)';
+                    nodeDotElements[i].style.boxShadow = 'none';
+                }
+            }
+        }
+
+        function startTimer() {
+            if(isClockStateRunningFlag) return;
+            isClockStateRunningFlag = true;
+            countdownTickerIntervalReference = setInterval(() => {
+                if(calculationSecondsRemainingValue > 0) {
+                    calculationSecondsRemainingValue--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(countdownTickerIntervalReference);
+                    isClockStateRunningFlag = false;
+                    processPhaseTransition();
+                }
+            }, 1000);
+        }
+
+        function processPhaseTransition() {
+            const currentScopeTaskText = document.getElementById('pomo-task').value.trim() || 'Undefined Matrix Work';
+            
+            if (activeTimingPhaseKey === 'focus') {
+                totalSuccessfullyLoggedBlocks++;
+                appData.pomoLog.unshift({
+                    task: currentScopeTaskText,
+                    type: 'Focus Block Completed',
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                saveData(); safeExecute(renderPomoLog, "Log Appending Update");
+
+                if (totalSuccessfullyLoggedBlocks % 4 === 0) {
+                    activeTimingPhaseKey = 'long';
+                    document.getElementById('timer-status').innerText = 'Extended Decompression';
+                    calculationSecondsRemainingValue = (Number(document.getElementById('cfg-long').value) || 15) * 60;
+                } else {
+                    activeTimingPhaseKey = 'short';
+                    document.getElementById('timer-status').innerText = 'Intermittent Mitigation';
+                    calculationSecondsRemainingValue = (Number(document.getElementById('cfg-short').value) || 5) * 60;
+                }
+            } else {
+                activeTimingPhaseKey = 'focus';
+                document.getElementById('timer-status').innerText = 'Cognitive Loading';
+                calculationSecondsRemainingValue = (Number(document.getElementById('cfg-focus').value) || 25) * 60;
+            }
+            
+            updateTimerDisplay();
+            alert(`State Phase Complete. Moving into: ${activeTimingPhaseKey.toUpperCase()}`);
+        }
+
+        function pauseTimer() {
+            clearInterval(countdownTickerIntervalReference);
+            isClockStateRunningFlag = false;
+        }
+
+        function resetTimer() {
+            clearInterval(countdownTickerIntervalReference);
+            isClockStateRunningFlag = false;
+            
+            const focusMinutesSetup = Number(document.getElementById('cfg-focus').value) || 25;
+            const shortMinutesSetup = Number(document.getElementById('cfg-short').value) || 5;
+            const longMinutesSetup = Number(document.getElementById('cfg-long').value) || 15;
+            
+            if(activeTimingPhaseKey === 'focus') calculationSecondsRemainingValue = focusMinutesSetup * 60;
+            else if(activeTimingPhaseKey === 'short') calculationSecondsRemainingValue = shortMinutesSetup * 60;
+            else if(activeTimingPhaseKey === 'long') calculationSecondsRemainingValue = longMinutesSetup * 60;
+            
+            updateTimerDisplay();
+        }
+
+        function renderPomoLog() {
+            const loggerUIOutputNode = document.getElementById('pomo-log');
+            if(!loggerUIOutputNode) return;
+
+            loggerUIOutputNode.innerHTML = appData.pomoLog.map(log => `
+                <div class="list-item">
+                    <span>🎯 <b>${log.task}</b> (${log.type})</span>
+                    <span style="color:var(--secondary)">${log.time}</span>
+                </div>
+            `).join('') || '<p style="color:var(--secondary); font-size:0.9rem;">No operational intervals logged.</p>';
+        }
+
+        // --- GLOBAL CENTRAL INITIALIZATION MATRIX ---
+        window.onload = function() {
+            safeExecute(renderWorkout, "Init Workout");
+            safeExecute(renderCalories, "Init Calories");
+            safeExecute(renderTrading, "Init Trading");
+            safeExecute(renderHabits, "Init Habits");
+            safeExecute(renderSleep, "Init Sleep");
+            safeExecute(renderJournal, "Init Journal");
+            safeExecute(renderWater, "Init Water");
+            safeExecute(renderNetWorth, "Init NetWorth");
+            safeExecute(renderSupplements, "Init Supplements");
+            safeExecute(renderPomoLog, "Init PomoLog");
+            safeExecute(updateOverview, "Init Overview");
+            safeExecute(renderCharts, "Init Graphic Charts Engine Execution");
+        };
+    </script>
+</body>
+</html>
